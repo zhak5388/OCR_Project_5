@@ -1,13 +1,8 @@
-const KanapApiUrl = "http://localhost:3000/api/products/";
+import {KanapApiUrl, addElementInsideParent} from "./utils.js";
+
 const whereToInsertContent = document.getElementById("items");
 const areProductsDisplayedRandomly = Boolean(false);
 console.log(areProductsDisplayedRandomly);
-
-
-function addElementInsideParent(element, parent)
-{
-    parent.insertAdjacentHTML("beforeend", element);
-}
 
 function createProductHtmlElement(id, imageUrl, altTxt, name, description)
 {
