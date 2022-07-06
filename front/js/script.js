@@ -2,7 +2,6 @@ import {KanapApiUrl, addElementInsideParent} from "./utils.js";
 
 const whereToInsertContent = document.getElementById("items");
 const areProductsDisplayedRandomly = Boolean(false);
-console.log(areProductsDisplayedRandomly);
 
 function createProductHtmlElement(id, imageUrl, altTxt, name, description)
 {
