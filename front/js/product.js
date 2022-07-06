@@ -73,9 +73,11 @@ addToCartButtonLocation.addEventListener("click", () =>
    if ((colorValue != "") && (quantityValue != 0))
    {
     let wordCanape = "canapés";
+    let confirmationSentence = "Produits ajoutés!";
     if (quantityValue == 1)
     {
         wordCanape = "canapé";
+        confirmationSentence = "Produit ajouté!"
     }
 
     let confirmAddition = confirm(`Souhaitez vous ajouter ${quantityValue} ${wordCanape} de couleur ${colorValue} au panier?`);
@@ -92,6 +94,8 @@ addToCartButtonLocation.addEventListener("click", () =>
         {
             localStorage.setItem(key, quantityValue);
         }
+        
+        alert(confirmationSentence);
     }
 
    }

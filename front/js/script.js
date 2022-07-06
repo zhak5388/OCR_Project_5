@@ -5,8 +5,8 @@ const areProductsDisplayedRandomly = Boolean(false);
 
 function createProductHtmlElement(id, imageUrl, altTxt, name, description)
 {
-    let ProductHtmlElement = `<a href="./product.html?id=${id}"><article><img src="${imageUrl}" alt="${altTxt}"><h3 class="productName">${name}</h3><p class="productDescription">${description}</p></article></a>`;
-    return ProductHtmlElement;
+    let productHtmlElement = `<a href="./product.html?id=${id}"><article><img src="${imageUrl}" alt="${altTxt}"><h3 class="productName">${name}</h3><p class="productDescription">${description}</p></article></a>`;
+    return productHtmlElement;
 }
 
 function shuffleArray(array)
