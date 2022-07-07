@@ -73,10 +73,14 @@ addToCartButtonLocation.addEventListener("click", () =>
    let colorValue = findValueOfOptionSelected();
    let quantityValue = document.getElementById("quantity").value; //It is a string
 
+   //Vérifie une quantié et une couleur a été selectionné
+   //Si oui, continue, sinon un message d'erreur s'affiche
    if ((colorValue != "") && (quantityValue != 0))
    {
     let wordCanape = "canapés";
     let confirmationSentence = "Produits ajoutés!";
+
+    //Condition pour gérer l'accord des mots dans le message d'erreur
     if (quantityValue == 1)
     {
         wordCanape = "canapé";
@@ -84,10 +88,13 @@ addToCartButtonLocation.addEventListener("click", () =>
     }
 
     let confirmAddition = confirm(`Souhaitez vous ajouter ${quantityValue} ${wordCanape} de couleur ${colorValue} au panier?`);
+    
+    //Si le client confirme l'ajout, on continue, sinon arrêt
     if (confirmAddition == true)
     {
         let key  = convertArrayString([urlID , colorValue]);
 
+        //Si le produit est présent dans le panier, on incrémente la quantité, sinon on l'ajoute
         if(isItOnBasket(key))
         {
             localStorage[key] = parseInt(localStorage[key]) + parseInt(quantityValue); //localStorage is always a string
