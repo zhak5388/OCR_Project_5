@@ -46,7 +46,6 @@ async function getTotals()
         let productQuantityInBasket = parseInt(localStorage.getItem(localStorage.key(i)));
         let productValuesInBasket = await getProductValuesFromID(productIdInBasket);
         let productPriceInBasket = productValuesInBasket.price;
-        //console.log(productPriceInBasket);
 
         totalQuantity = parseInt(totalQuantity) + parseInt(productQuantityInBasket);
         totalPrice = parseInt(totalPrice) + parseInt(productPriceInBasket) * parseInt(productQuantityInBasket);

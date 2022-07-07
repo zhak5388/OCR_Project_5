@@ -4,6 +4,7 @@ const currentURL = new URL(window.location);
 const urlID = currentURL.searchParams.get("id");
 let addToCartButtonLocation = document.getElementById("addToCart");
 
+//Fonction pour obtenir la valeur de la couleur choisie
 function findValueOfOptionSelected()
 {
     let currentOptions = document.querySelectorAll("#colors option");
@@ -19,6 +20,7 @@ function findValueOfOptionSelected()
     return selectedOption;
 }
 
+//Fonction booléenne permettant de savoir si une clé est déjà présente dans le local storage
 function isItOnBasket(keyInString)
 {
     let result = false;
@@ -33,6 +35,7 @@ function isItOnBasket(keyInString)
     return result;
 }
 
+//Insertion dans le DOM des caractérisques du produit cliqué
 fetch(KanapApiUrl+urlID)
     .then( (response) => 
     {

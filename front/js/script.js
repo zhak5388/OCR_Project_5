@@ -3,12 +3,15 @@ import {KanapApiUrl, addElementInsideParent} from "./utils.js";
 const whereToInsertContent = document.getElementById("items");
 const areProductsDisplayedRandomly = Boolean(false);
 
+//Fonction pour créer le contenu html à insérer
 function createProductHtmlElement(id, imageUrl, altTxt, name, description)
 {
     let productHtmlElement = `<a href="./product.html?id=${id}"><article><img src="${imageUrl}" alt="${altTxt}"><h3 class="productName">${name}</h3><p class="productDescription">${description}</p></article></a>`;
     return productHtmlElement;
 }
 
+//Fonction permettant de mélanger une liste aléatoirement
+//(Pour avoir une page acceuil avec un order qui change)
 function shuffleArray(array)
 {
     let finalArray = [];
