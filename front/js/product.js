@@ -1,7 +1,9 @@
-import {KanapApiUrl, addElementInsideParent, convertArrayString, maximumQuantityPerProductOnBasket, BasketLocalStorageKeyName, changeAProductQuantityOnBasket} from "./utils.js";
+import {getProductDataFromAPI, addElementInsideParent, convertArrayString, maximumQuantityPerProductOnBasket} from "./utils.js";
 
 const currentURL = new URL(window.location);
 const urlID = currentURL.searchParams.get("id");
+const productDatafromAPI = await getProductDataFromAPI(urlID);
+
 let addToCartButtonLocation = document.getElementById("addToCart");
 
 //Fonction pour obtenir la valeur de la couleur choisie
@@ -22,9 +24,7 @@ function findValueOfOptionSelected()
 
 //Fonction booléenne permettant de savoir si une clé est déjà présente dans le local storage
 function isItOnBasket(keyInString)
-{
-    //Old //input: keyInString
-    
+{   
     let result = false;
     for (let i = 0; i < localStorage.length; i++)
     {
@@ -35,65 +35,22 @@ function isItOnBasket(keyInString)
         }
     }
     return result;
-    
-
-    //New //input:IdColorInString
-    /*
-    let productOnBasketArray = localStorage.getItem(BasketLocalStorageKeyName);
-    productOnBasketArray = JSON.parse(productOnBasketArray);
-    //console.log(productOnBasketArray);
-
-    let result = [false , null];
-    for (let i = 0; i < productOnBasketArray.length; i++)
-    {
-        let currentProduct = productOnBasketArray[i];
-        //console.log(currentProduct);
-        let currentProductArray = convertArrayString(currentProduct);
-        let IdColor = currentProductArray[0] + "," + currentProductArray[1];
-        //console.log(IdColor);
-
-        if(IdColor == IdColorInString)
-        {
-            result = [true, `${currentProductArray[2]}`];
-        }
-    }
-    return result;
-    */
 }
 
-//Insertion dans le DOM des caractérisques du produit cliqué
-fetch(KanapApiUrl+urlID)
-    .then( (response) => 
-    {
-        if (response.ok)
-        {
-            return response.json();
-        }
-    })
-    .then( (data) =>
-    {
-        return data;
-    })
-    .then( (data) =>
-    {
-        let htmlContentForImage = `<img src="${data.imageUrl}" alt="${data.altTxt}"/>`;
-        addElementInsideParent(htmlContentForImage,document.querySelector("article > div"));
-        addElementInsideParent(data.name,document.getElementById("title"));
-        addElementInsideParent(data.price, document.getElementById("price"));
-        addElementInsideParent(data.description,document.getElementById("description"));
-        for(let i=0; i < data.colors.length; i++)
-        {
-            let htmlContentForColors = `<option value=${data.colors[i]}>${data.colors[i]}</option>`
-            addElementInsideParent(htmlContentForColors,document.getElementById("colors"));
-        }
+/********** Insertion dans le DOM des caractérisques du produit cliqué **********/
+let htmlContentForImage = `<img src="${productDatafromAPI.imageUrl}" alt="${productDatafromAPI.altTxt}"/>`;
+addElementInsideParent(htmlContentForImage,document.querySelector("article > div"));
+addElementInsideParent(productDatafromAPI.name,document.getElementById("title"));
+addElementInsideParent(productDatafromAPI.price, document.getElementById("price"));
+addElementInsideParent(productDatafromAPI.description,document.getElementById("description"));
 
-    })
-    .catch((error) => 
-    {
-        console.log("An error occured")
-    });
+for(let i=0; i < productDatafromAPI.colors.length; i++)
+{
+    let htmlContentForColors = `<option value=${productDatafromAPI.colors[i]}>${productDatafromAPI.colors[i]}</option>`
+    addElementInsideParent(htmlContentForColors,document.getElementById("colors"));
+}
 
-
+/**************************** Gestion de l'ajout dans le panier ****************************/
 addToCartButtonLocation.addEventListener("click", () =>
 {
    let colorValue = findValueOfOptionSelected();
@@ -123,32 +80,12 @@ addToCartButtonLocation.addEventListener("click", () =>
         //Si le produit est présent dans le panier, on incrémente la quantité, sinon on l'ajoute
         if(isItOnBasket(key))
         {
-            //old
             localStorage[key] = parseInt(localStorage[key]) + parseInt(quantityValue); //localStorage is always a string
-            
-            //New
-            /*
-            let newQuantityValue = parseInt(isItOnBasket(key)[1]) + parseInt(quantityValue);
-            changeAProductQuantityOnBasket(key,newQuantityValue);
-            */
         }
 
         else
         {
-            //Old
             localStorage.setItem(key, quantityValue);
-
-            //New
-            /*
-            //Recupere et parse
-            let productOnBasketArray = localStorage.getItem(BasketLocalStorageKeyName);
-            productOnBasketArray = JSON.parse(productOnBasketArray);
-
-            //Ajoute dans array
-            productOnBasketArray.push(convertArrayString([urlID, colorValue, quantityValue]));
-            //On reecrit larray stringifie
-            localStorage.setItem(BasketLocalStorageKeyName, JSON.stringify(productOnBasketArray));
-            */
         }
         
         document.getElementById("quantity").value = 0;

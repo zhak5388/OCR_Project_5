@@ -1,7 +1,7 @@
-import {KanapApiUrl, addElementInsideParent} from "./utils.js";
+import {getDataFromAPI, addElementInsideParent} from "./utils.js";
 
 const whereToInsertContent = document.getElementById("items");
-const areProductsDisplayedRandomly = Boolean(false);
+const dataFromAPI = await getDataFromAPI();
 
 //Fonction pour créer le contenu html à insérer
 function createProductHtmlElement(id, imageUrl, altTxt, name, description)
@@ -10,65 +10,7 @@ function createProductHtmlElement(id, imageUrl, altTxt, name, description)
     return productHtmlElement;
 }
 
-//Fonction permettant de mélanger une liste aléatoirement
-//(Pour avoir une page acceuil avec un order qui change)
-function shuffleArray(array)
+for (let i = 0; i < dataFromAPI.length; i++)
 {
-    let finalArray = [];
-    let orderedRange = [];
-    let shuffledRange = [];
-    
-    for(let i = 0; i < array.length; i ++) //Genere une liste ordonnée d'entier
-    {
-        orderedRange.push(i);
-    }
-
-    let maxLength=orderedRange.length;
-
-    for(let i = 0; i < maxLength; i ++) //Genere une liste désordonné de la liste ordonnée
-    {
-        let randomIndex = Math.floor(Math.random() * orderedRange.length); //Between 0 and orderedRange.length excluded
-        shuffledRange.push(orderedRange[randomIndex]);
-        orderedRange.splice(randomIndex,1);
-    }
-
-    for(let i = 0; i < array.length; i ++)
-    {
-        finalArray.push(array[shuffledRange[i]]);
-    }
-
-    return finalArray;
+    addElementInsideParent(createProductHtmlElement(dataFromAPI[i]._id, dataFromAPI[i].imageUrl, dataFromAPI[i].altTxt, dataFromAPI[i].name,dataFromAPI[i].description),whereToInsertContent);
 }
-
-
-fetch(KanapApiUrl)
-    .then( (response) => 
-    {
-        if (response.ok)
-        {
-            return response.json();
-        }
-    })
-    .then( (data) => 
-    {
-        if(areProductsDisplayedRandomly)
-        {
-            return shuffleArray(data);
-        }
-
-        else
-        {
-            return data;
-        }
-    })
-    .then( (data) => 
-    {
-        for(let i = 0; i < data.length; i++)
-        {
-            addElementInsideParent(createProductHtmlElement(data[i]._id, data[i].imageUrl, data[i].altTxt, data[i].name,data[i].description),whereToInsertContent);
-        }
-    })
-    .catch( (error) => 
-    {
-        console.log("An error occured")
-    });

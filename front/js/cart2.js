@@ -1,4 +1,4 @@
-import {addElementInsideParent, convertArrayString, getDataFromAPI, getProductDataFromAPI, maximumQuantityPerProductOnBasket} from "./utils.js";
+import {KanapApiUrl, addElementInsideParent, convertArrayString, getDataFromAPI, maximumQuantityPerProductOnBasket} from "./utils.js";
 
 /********************* 1- Définition Fonctions et Variables générales *********************/
 
@@ -30,7 +30,31 @@ function isThisLocalStorageKeyAProduct(keyInString)
     return result;
 }
 
+
+//Fonction permettant de récupérer les données des items de l'API
+async function getProductValuesFromID(ProductID) //Est ce le async est necessaire?
+{
+    return fetch(KanapApiUrl + ProductID)
+        .then( (response) =>
+        {
+            if(response.ok)
+            {
+                return response.json();
+            }
+        })
+        .then( (data) =>
+        {
+            //console.log(`La recupération de ${ProductID} est finie`)
+            return data;
+        })
+        .catch( (error) =>
+        {
+            console.log(`An error occured in getPriceValueFromID ${ProductID}`);
+        });
+}
+
 //Fonction lisant le panier et donnant le prix et quantités d'articles totaux
+//Les prix ne sont pas stockés en local, cette fonction intérroge l'API pour les avoir
 async function getTotals()
 {
     let totalQuantity = 0;
@@ -44,7 +68,7 @@ async function getTotals()
         }
         let productIdInBasket = convertArrayString(localStorage.key(i))[0];
         let productQuantityInBasket = parseInt(localStorage.getItem(localStorage.key(i)));
-        let productValuesInBasket = await getProductDataFromAPI(productIdInBasket);
+        let productValuesInBasket = await getProductValuesFromID(productIdInBasket);
         let productPriceInBasket = productValuesInBasket.price;
 
         totalQuantity = parseInt(totalQuantity) + parseInt(productQuantityInBasket);
@@ -53,6 +77,8 @@ async function getTotals()
 
     return [totalQuantity, totalPrice];
 }
+
+
 
 /********************* 2- Tableau récapitulatif des achats *********************/
 
@@ -68,14 +94,14 @@ for (let i = 0; i < localStorage.length; i++)
     let productColorInBasket = convertArrayString(localStorage.key(i))[1];
     let productQuantityInBasket = parseInt(localStorage.getItem(localStorage.key(i)));
 
-    let data = await getProductDataFromAPI(productIdInBasket);
+    let data = await getProductValuesFromID(productIdInBasket);
 
     let articleToInsert = createProductHtmlElement(productIdInBasket, productColorInBasket, data.imageUrl, data.altTxt, data.name, data.price, productQuantityInBasket);
     let whereToInsertArticle = document.getElementById("cart__items");
     addElementInsideParent(articleToInsert, whereToInsertArticle);
 }
 
-let totals = await getTotals();
+let totals = await getTotals(); //Et si on stocke les prix dans un array? (évite d'avoir un async dans eventListener)
 addElementInsideParent(totals[0], totalQuantityLocation);
 addElementInsideParent(totals[1], totalPriceLocation);
 
@@ -128,6 +154,10 @@ itemQuantityLocation.forEach( (buttonElement) =>
             alert("Veuillez appuyer sur le button supprimer pour le retirer du panier")
             return 0;
         }
+        
+        //Permet de changer dynamiquement le prix local
+        //let priceTextLocation = this.closest(".cart__item__content__settings").previousSibling.lastChild;
+        //console.log(priceTextLocation.outerText);
 
         //Changement dans le DOM
         quantityText.innerHTML = `Qté : ${currentQuantity}`; //Bon truc? Paragraphe?

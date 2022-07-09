@@ -14,30 +14,10 @@ export function convertArrayString(key)
     if(Array.isArray(key))
     {
         return key.toString();
-        //console.log("Ceci est un Objet");
     }
     if(typeof(key) === "string")
     {
-        //console.log("Ceci est un String");
         return key.split(",");
-    }
-}
-
-export function changeAProductQuantityOnBasket(IdColorInString, newQuantityValue)
-{
-    let productOnBasketArray = localStorage.getItem(BasketLocalStorageKeyName);
-    productOnBasketArray = JSON.parse(productOnBasketArray);
-
-    for(let i = 0; i < productOnBasketArray.length; i++)
-    {
-        let currentIdColor = convertArrayString(productOnBasketArray[i]);
-        if(IdColorInString == `${currentIdColor[0]},${currentIdColor[1]}`)
-        {
-            productOnBasketArray[i] = IdColorInString + "," + newQuantityValue;
-
-            let newLocalStorageValue = JSON.stringify(productOnBasketArray);
-            localStorage.setItem(BasketLocalStorageKeyName, newLocalStorageValue);
-        }
     }
 }
 
@@ -51,8 +31,24 @@ export function getDataFromAPI()
                 return response.json();
             }
         })
-        .catch( (error) =>
+        .catch( () =>
         {
-            console.log(`An error occured in getPriceValueFromID ${ProductID}`);
+            console.log(`An error occured`);
+        });
+}
+
+export function getProductDataFromAPI(ProductID)
+{
+    return fetch(KanapApiUrl + ProductID)
+        .then( (response) =>
+        {
+            if(response.ok)
+            {
+                return response.json();
+            }
+        })
+        .catch( () =>
+        {
+            console.log(`An error occured in getProductDataFromAPI ${ProductID}`);
         });
 }
