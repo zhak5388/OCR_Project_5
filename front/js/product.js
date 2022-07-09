@@ -1,4 +1,4 @@
-import {KanapApiUrl, addElementInsideParent, convertArrayString} from "./utils.js";
+import {KanapApiUrl, addElementInsideParent, convertArrayString, maximumQuantityPerProductOnBasket, BasketLocalStorageKeyName, changeAProductQuantityOnBasket} from "./utils.js";
 
 const currentURL = new URL(window.location);
 const urlID = currentURL.searchParams.get("id");
@@ -23,6 +23,8 @@ function findValueOfOptionSelected()
 //Fonction booléenne permettant de savoir si une clé est déjà présente dans le local storage
 function isItOnBasket(keyInString)
 {
+    //Old //input: keyInString
+    
     let result = false;
     for (let i = 0; i < localStorage.length; i++)
     {
@@ -33,6 +35,30 @@ function isItOnBasket(keyInString)
         }
     }
     return result;
+    
+
+    //New //input:IdColorInString
+    /*
+    let productOnBasketArray = localStorage.getItem(BasketLocalStorageKeyName);
+    productOnBasketArray = JSON.parse(productOnBasketArray);
+    //console.log(productOnBasketArray);
+
+    let result = [false , null];
+    for (let i = 0; i < productOnBasketArray.length; i++)
+    {
+        let currentProduct = productOnBasketArray[i];
+        //console.log(currentProduct);
+        let currentProductArray = convertArrayString(currentProduct);
+        let IdColor = currentProductArray[0] + "," + currentProductArray[1];
+        //console.log(IdColor);
+
+        if(IdColor == IdColorInString)
+        {
+            result = [true, `${currentProductArray[2]}`];
+        }
+    }
+    return result;
+    */
 }
 
 //Insertion dans le DOM des caractérisques du produit cliqué
@@ -75,7 +101,7 @@ addToCartButtonLocation.addEventListener("click", () =>
 
    //Vérifie une quantié et une couleur a été selectionné
    //Si oui, continue, sinon un message d'erreur s'affiche
-   if ((colorValue != "") && (quantityValue > 0) && (quantityValue < 101))//ajouter message
+   if ((colorValue != "") && (quantityValue > 0) && (quantityValue <= maximumQuantityPerProductOnBasket))
    {
     let wordCanape = "canapés";
     let confirmationSentence = "Produits ajoutés!";
@@ -97,17 +123,51 @@ addToCartButtonLocation.addEventListener("click", () =>
         //Si le produit est présent dans le panier, on incrémente la quantité, sinon on l'ajoute
         if(isItOnBasket(key))
         {
+            //old
             localStorage[key] = parseInt(localStorage[key]) + parseInt(quantityValue); //localStorage is always a string
+            
+            //New
+            /*
+            let newQuantityValue = parseInt(isItOnBasket(key)[1]) + parseInt(quantityValue);
+            changeAProductQuantityOnBasket(key,newQuantityValue);
+            */
         }
 
         else
         {
+            //Old
             localStorage.setItem(key, quantityValue);
+
+            //New
+            /*
+            //Recupere et parse
+            let productOnBasketArray = localStorage.getItem(BasketLocalStorageKeyName);
+            productOnBasketArray = JSON.parse(productOnBasketArray);
+
+            //Ajoute dans array
+            productOnBasketArray.push(convertArrayString([urlID, colorValue, quantityValue]));
+            //On reecrit larray stringifie
+            localStorage.setItem(BasketLocalStorageKeyName, JSON.stringify(productOnBasketArray));
+            */
         }
         
+        document.getElementById("quantity").value = 0;
+        document.getElementById("colors").value = "";
         alert(confirmationSentence);
     }
 
+   }
+   else if ((colorValue == "") && (quantityValue != 0))
+   {
+    alert("Veuillez choisir une couleur");
+   }
+   else if ((colorValue != "") && (quantityValue == 0))
+   {
+    alert("Veuillez choisir un nombre d'article(s)");
+   }
+   else if (quantityValue > maximumQuantityPerProductOnBasket)
+   {
+    alert("Vous ne pouvez pas ajouter plus de 100 articles dans le panier");
    }
    else
    {

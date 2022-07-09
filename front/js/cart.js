@@ -1,4 +1,4 @@
-import {KanapApiUrl, addElementInsideParent, convertArrayString} from "./utils.js";
+import {KanapApiUrl, addElementInsideParent, convertArrayString, getDataFromAPI, maximumQuantityPerProductOnBasket} from "./utils.js";
 
 /********************* 1- Définition Fonctions et Variables générales *********************/
 
@@ -10,6 +10,28 @@ function createProductHtmlElement(productID, productColor, imageUrl, altTxt, nam
     let productHtmlElement = `<article class="cart__item" data-id="${productID}" data-color="${productColor}"><div class="cart__item__img"><img src="${imageUrl}" alt="${altTxt}"></div><div class="cart__item__content"><div class="cart__item__content__description"><h2>${name}</h2><p>${productColor}</p><p>${price} €</p></div><div class="cart__item__content__settings"><div class="cart__item__content__settings__quantity"><p>Qté : ${quantity}</p><input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${quantity}"></div><div class="cart__item__content__settings__delete"><p class="deleteItem">Supprimer</p></div></div></div></article>`;
     return productHtmlElement;
 }
+
+//Fonction spéciale pour vérifier si une clé est bien un produit du panier
+
+
+const apiData = await getDataFromAPI();
+
+function isThisLocalStorageKeyAProduct(keyInString)
+{
+    let result = false;
+    for (let i = 0; i < apiData.length; i++)
+    {
+        for (let j = 0; j < apiData[i].colors.length; j++)
+        {
+            if(keyInString == `${apiData[i]._id},${apiData[i].colors[j]}`)
+            {
+                result = true;
+            }
+        }
+    }
+    return result;
+}
+
 
 //Fonction permettant de récupérer les données des items de l'API
 async function getProductValuesFromID(ProductID) //Est ce le async est necessaire?
@@ -42,6 +64,10 @@ async function getTotals()
 
     for (let i = 0; i < localStorage.length; i++)
     {
+        if(isThisLocalStorageKeyAProduct(localStorage.key(i)) === false)
+        {
+            break;
+        }
         let productIdInBasket = convertArrayString(localStorage.key(i))[0];
         let productQuantityInBasket = parseInt(localStorage.getItem(localStorage.key(i)));
         let productValuesInBasket = await getProductValuesFromID(productIdInBasket);
@@ -54,20 +80,18 @@ async function getTotals()
     return [totalQuantity, totalPrice];
 }
 
-//Fonction spéciale pour vérifier si une clé est bien un produit du panier
 
-/*
-const idList = [];
-function isThisLocalStorageKeyAProduct(key)
-{
-}
-*/
 
 /********************* 2- Tableau récapitulatif des achats *********************/
 
 //Recuperation et Insertion du Panier dans le DOM
 for (let i = 0; i < localStorage.length; i++) 
 {
+    if(isThisLocalStorageKeyAProduct(localStorage.key(i)) === false)
+    {
+        break;
+    }
+
     let productIdInBasket = convertArrayString(localStorage.key(i))[0];
     let productColorInBasket = convertArrayString(localStorage.key(i))[1];
     let productQuantityInBasket = parseInt(localStorage.getItem(localStorage.key(i)));
@@ -119,7 +143,19 @@ itemQuantityLocation.forEach( (buttonElement) =>
         let currentQuantity = this.value;
         let quantityText = this.previousSibling;
         let closestArticle = this.closest("article");
-        let keyForLocalStorage = [closestArticle.dataset.id, closestArticle.dataset.color];
+        let keyForLocalStorage = [closestArticle.dataset.id, closestArticle.dataset.color];//
+
+        if(currentQuantity > maximumQuantityPerProductOnBasket)
+        {
+            alert("Vous ne pouvez pas ajouter plus de 100 articles dans le panier");
+            return 0;
+        }
+        
+        if(currentQuantity == 0)
+        {
+            alert("Veuillez appuyer sur le button supprimer pour le retirer du panier")
+            return 0;
+        }
         
         //Permet de changer dynamiquement le prix local
         //let priceTextLocation = this.closest(".cart__item__content__settings").previousSibling.lastChild;

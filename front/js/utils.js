@@ -1,4 +1,6 @@
 export const KanapApiUrl = "http://localhost:3000/api/products/";
+export const BasketLocalStorageKeyName = "productAddedToBasket";
+export const maximumQuantityPerProductOnBasket = 100;
 
 export function addElementInsideParent(element, parent)
 {
@@ -19,4 +21,38 @@ export function convertArrayString(key)
         //console.log("Ceci est un String");
         return key.split(",");
     }
+}
+
+export function changeAProductQuantityOnBasket(IdColorInString, newQuantityValue)
+{
+    let productOnBasketArray = localStorage.getItem(BasketLocalStorageKeyName);
+    productOnBasketArray = JSON.parse(productOnBasketArray);
+
+    for(let i = 0; i < productOnBasketArray.length; i++)
+    {
+        let currentIdColor = convertArrayString(productOnBasketArray[i]);
+        if(IdColorInString == `${currentIdColor[0]},${currentIdColor[1]}`)
+        {
+            productOnBasketArray[i] = IdColorInString + "," + newQuantityValue;
+
+            let newLocalStorageValue = JSON.stringify(productOnBasketArray);
+            localStorage.setItem(BasketLocalStorageKeyName, newLocalStorageValue);
+        }
+    }
+}
+
+export function getDataFromAPI()
+{
+    return fetch(KanapApiUrl)
+        .then( (response) =>
+        {
+            if(response.ok)
+            {
+                return response.json();
+            }
+        })
+        .catch( (error) =>
+        {
+            console.log(`An error occured in getPriceValueFromID ${ProductID}`);
+        });
 }
