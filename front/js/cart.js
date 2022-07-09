@@ -1,6 +1,6 @@
 import {KanapApiUrl, addElementInsideParent, convertArrayString, getDataFromAPI, maximumQuantityPerProductOnBasket} from "./utils.js";
 
-/********************* 1- Définition Fonctions et Variables générales *********************/
+/********************* 1- Définition Fonctions et Variables générales *********************/ 
 
 const totalQuantityLocation = document.getElementById("totalQuantity");
 const totalPriceLocation = document.getElementById("totalPrice");
