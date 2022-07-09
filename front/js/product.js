@@ -75,7 +75,7 @@ addToCartButtonLocation.addEventListener("click", () =>
 
    //Vérifie une quantié et une couleur a été selectionné
    //Si oui, continue, sinon un message d'erreur s'affiche
-   if ((colorValue != "") && (quantityValue != 0))
+   if ((colorValue != "") && (quantityValue > 0) && (quantityValue < 101))//ajouter message
    {
     let wordCanape = "canapés";
     let confirmationSentence = "Produits ajoutés!";

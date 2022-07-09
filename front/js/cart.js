@@ -19,7 +19,7 @@ async function getProductValuesFromID(ProductID) //Est ce le async est necessair
         {
             if(response.ok)
             {
-                return response.json()
+                return response.json();
             }
         })
         .then( (data) =>
@@ -73,9 +73,8 @@ for (let i = 0; i < localStorage.length; i++)
     let productQuantityInBasket = parseInt(localStorage.getItem(localStorage.key(i)));
 
     let data = await getProductValuesFromID(productIdInBasket);
-    let subtotalPrice = parseInt(productQuantityInBasket) * parseInt(data.price);
 
-    let articleToInsert = createProductHtmlElement(productIdInBasket, productColorInBasket, data.imageUrl, data.altTxt, data.name, subtotalPrice, productQuantityInBasket);
+    let articleToInsert = createProductHtmlElement(productIdInBasket, productColorInBasket, data.imageUrl, data.altTxt, data.name, data.price, productQuantityInBasket);
     let whereToInsertArticle = document.getElementById("cart__items");
     addElementInsideParent(articleToInsert, whereToInsertArticle);
 }
@@ -92,7 +91,7 @@ let itemQuantityLocation = document.querySelectorAll(".itemQuantity");
 
 deleteArticleButtonLocation.forEach( (buttonElement) =>
     {
-        buttonElement.addEventListener("click", async function() //Arrow function don't handle "this"?
+        buttonElement.addEventListener("click", async function() //Arrow functions don't handle "this"?
         {
             //Obtention des valeurs
             let closestArticle = this.closest("article");
@@ -140,3 +139,115 @@ itemQuantityLocation.forEach( (buttonElement) =>
 });
 
 /********************* 4- Gestion du Formulaire *********************/
+
+let firstNameErrorLocation = document.getElementById("firstNameErrorMsg");
+let lastNameErrorLocation = document.getElementById("lastNameErrorMsg");
+let adressErrorLocation = document.getElementById("addressErrorMsg");
+let cityErrorLocation = document.getElementById("cityErrorMsg");
+let emailErrorLocation = document.getElementById("emailErrorMsg");
+
+//nonAtoZLetter = "ÆÐƎƏƐƔĲŊŒẞÞǷȜæðǝəɛɣĳŋœĸſßþƿȝĄƁÇĐƊĘĦĮƘŁØƠŞȘŢȚŦŲƯY̨Ƴąɓçđɗęħįƙłøơşșţțŧųưy̨ƴÁÀÂÄǍĂĀÃÅǺĄÆǼǢƁĆĊĈČÇĎḌĐƊÐÉÈĖÊËĚĔĒĘẸƎƏƐĠĜǦĞĢƔáàâäǎăāãåǻąæǽǣɓćċĉčçďḍđɗðéèėêëěĕēęẹǝəɛġĝǧğģɣĤḤĦIÍÌİÎÏǏĬĪĨĮỊĲĴĶƘĹĻŁĽĿʼNŃN̈ŇÑŅŊÓÒÔÖǑŎŌÕŐỌØǾƠŒĥḥħıíìiîïǐĭīĩįịĳĵķƙĸĺļłľŀŉńn̈ňñņŋóòôöǒŏōõőọøǿơœŔŘŖŚŜŠŞȘṢẞŤŢṬŦÞÚÙÛÜǓŬŪŨŰŮŲỤƯẂẀŴẄǷÝỲŶŸȲỸƳŹŻŽẒŕřŗſśŝšşșṣßťţṭŧþúùûüǔŭūũűůųụưẃẁŵẅƿýỳŷÿȳỹƴźżžẓ";
+function isThisAValidFirstName(input)
+{
+   //Accepte un ou des prénoms composés pouvant contenir des caractères comme ' ou -
+   //N'accepte pas des lettres comme ç
+   let result = false;
+   let regexTest = /^[a-zA-Z]+(([' -][a-zA-Z ])?[a-zA-Z]*)*$/;
+
+   if (typeof(input) == "string")
+   {
+    if ((input.length > 1) && (regexTest.test(input)))
+    {
+        result = true
+    }
+   }
+   return result;
+}
+
+function isThisAValidLastName(input)
+{
+    let result = false;
+    let regexTest = /^[a-zA-Z]+(([' -][a-zA-Z ])?[a-zA-Z]*)*$/;
+ 
+    if (typeof(input) == "string")
+    {
+     if ((input.length > 1) && (regexTest.test(input)))
+     {
+         result = true
+     }
+    }
+    return result;
+}
+
+function isThisAValidAdress(input)
+{
+    let regexTest = /^[0-9]+([ ][a-zA-Z]+(([' -][a-zA-Z ])?[a-zA-Z]*))*$/;
+    return regexTest.test(input);
+}
+
+function isThisAValidCity(input)
+{
+    let result = false;
+    let regexTest = /^[a-zA-Z]+(([' -][a-zA-Z ])?[a-zA-Z]*)*$/;
+ 
+    if (typeof(input) == "string")
+    {
+     if ((input.length > 1) && (regexTest.test(input)))
+     {
+         result = true
+     }
+    }
+    return result;
+}
+
+function isThisAValidEmail(input)
+{
+    let regexTest = /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]/;
+    return regexTest.test(input);
+}
+
+function invalidInputFormBehaviour(errorLocation, messageType, controlFunction)
+{
+    let currentValue = errorLocation.previousElementSibling.value;
+
+    if(controlFunction(currentValue) === false)
+    {
+        errorLocation.innerHTML = `Veuillez vérifier ${messageType}`;
+        errorLocation.previousElementSibling.style.border = "solid 2px red";
+    }
+
+    if((controlFunction(currentValue) === true) || (currentValue == ""))
+    {
+        //To be redefined
+        errorLocation.innerHTML = "";
+        errorLocation.previousElementSibling.style.border = "0";
+    }
+}
+
+//Great! This is working!!
+//En mettant la fonction dans le arrow elle est appellée plus d'une fois!
+firstNameErrorLocation.previousElementSibling.addEventListener("blur", ()=>
+{
+    invalidInputFormBehaviour(firstNameErrorLocation, "le prénom renseigné", isThisAValidFirstName);
+});
+
+lastNameErrorLocation.previousElementSibling.addEventListener("blur", ()=>
+{
+    invalidInputFormBehaviour(lastNameErrorLocation, "le nom renseigné", isThisAValidLastName);
+});
+
+adressErrorLocation.previousElementSibling.addEventListener("blur", ()=>
+{
+    invalidInputFormBehaviour(adressErrorLocation, "l'adresse renseignée", isThisAValidAdress);
+});
+
+cityErrorLocation.previousElementSibling.addEventListener("blur", ()=>
+{
+    invalidInputFormBehaviour(cityErrorLocation, "la ville renseignée", isThisAValidCity);
+});
+
+emailErrorLocation.previousElementSibling.addEventListener("blur", ()=>
+{
+    invalidInputFormBehaviour(emailErrorLocation, "l'email renseigné", isThisAValidEmail);
+});
+
