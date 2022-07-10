@@ -1,4 +1,4 @@
-import {addElementInsideParent, convertArrayString, getDataFromAPI, getProductDataFromAPI, KanapApiUrl, maximumQuantityPerProductOnBasket} from "./utils.js";
+import {addElementInsideParent, convertArrayString, isThisLocalStorageKeyAProduct, getProductDataFromAPI, KanapApiUrl, maximumQuantityPerProductOnBasket, isBasketEmpty} from "./utils.js";
 
 /********************* 1- Définition Fonctions et Variables générales *********************/
 
@@ -9,25 +9,6 @@ function createProductHtmlElement(productID, productColor, imageUrl, altTxt, nam
 {
     let productHtmlElement = `<article class="cart__item" data-id="${productID}" data-color="${productColor}"><div class="cart__item__img"><img src="${imageUrl}" alt="${altTxt}"></div><div class="cart__item__content"><div class="cart__item__content__description"><h2>${name}</h2><p>${productColor}</p><p>${price} €</p></div><div class="cart__item__content__settings"><div class="cart__item__content__settings__quantity"><p>Qté : ${quantity}</p><input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${quantity}"></div><div class="cart__item__content__settings__delete"><p class="deleteItem">Supprimer</p></div></div></div></article>`;
     return productHtmlElement;
-}
-
-//Fonction spéciale pour vérifier si une clé est bien un produit du panier
-const apiData = await getDataFromAPI();
-
-function isThisLocalStorageKeyAProduct(keyInString)
-{
-    let result = false;
-    for (let i = 0; i < apiData.length; i++)
-    {
-        for (let j = 0; j < apiData[i].colors.length; j++)
-        {
-            if(keyInString == `${apiData[i]._id},${apiData[i].colors[j]}`)
-            {
-                result = true;
-            }
-        }
-    }
-    return result;
 }
 
 //Fonction lisant le panier et donnant le prix et quantités d'articles totaux
@@ -54,29 +35,21 @@ async function getTotals()
     return [totalQuantity, totalPrice];
 }
 
-/********************* 2- Tableau récapitulatif des achats *********************/
-let isBasketEmpty = true;
-
-for (let i = 0; i < localStorage.length; i++)
+function changeAppearanceIfEmptyBasket()
 {
-    if(isThisLocalStorageKeyAProduct(localStorage.key(i)) === true)
+    let isBasketEmptyValue = isBasketEmpty();
+    if(isBasketEmptyValue)
     {
-        isBasketEmpty = false;
-        break;
+        totalPriceLocation.closest("div").classList.add("cart__price--empty");
+        totalPriceLocation.closest("p").innerHTML = `Votre panier est vide. Vous pouvez parcourir notre catalogue pour faire votre choix !`;
     }
-} 
-
-if(isBasketEmpty === true)
-{
-    let sectionToRemove = document.querySelector("#cartAndFormContainer section");
-    console.log(sectionToRemove);
-    sectionToRemove.remove();
-    let messageParagraphe = `Votre panier est vide. Vous pouvez parcourir notre catalogue pour faire votre choix!`;
-    addElementInsideParent(messageParagraphe,document.getElementById("cartAndFormContainer"));
 }
 
+/********************* 2- Tableau récapitulatif des achats *********************/
 
 //Recuperation et Insertion du Panier dans le DOM
+changeAppearanceIfEmptyBasket();
+
 for (let i = 0; i < localStorage.length; i++) 
 {
     if(isThisLocalStorageKeyAProduct(localStorage.key(i)) === false)
@@ -118,6 +91,7 @@ deleteArticleButtonLocation.forEach( (buttonElement) =>
 
             //Changement dans le localStorage
             localStorage.removeItem(convertArrayString(keyForLocalStorage));
+            changeAppearanceIfEmptyBasket();
             
             //Changement du prix et quantité
             let newTotals = await getTotals();
@@ -150,7 +124,7 @@ itemQuantityLocation.forEach( (buttonElement) =>
         }
 
         //Changement dans le DOM
-        quantityText.innerHTML = `Qté : ${currentQuantity}`; //Bon truc? Paragraphe?
+        quantityText.innerHTML = `Qté : ${currentQuantity}`;
 
         //Changement dans le localStorage
         localStorage[convertArrayString(keyForLocalStorage)] = parseInt(currentQuantity);
@@ -226,7 +200,7 @@ function isThisAValidCity(input)
 
 function isThisAValidEmail(input)
 {
-    let regexTest = /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]/;
+    let regexTest = /[^@ \t\r\n]+@[^@ \t\r\n]+\.[^@ \t\r\n]*$/;
     return regexTest.test(input);
 }
 
@@ -242,7 +216,6 @@ function invalidInputFormBehaviour(errorLocation, messageType, controlFunction)
 
     if((controlFunction(currentValue) === true) || (currentValue == ""))
     {
-        //To be redefined
         errorLocation.innerHTML = "";
         errorLocation.previousElementSibling.style.border = "0";
     }
@@ -334,8 +307,15 @@ orderButtonLocation.addEventListener("click", async function(event)
     let adresseValue = adressErrorLocation.previousElementSibling.value;
     let cityValue = cityErrorLocation.previousElementSibling.value;
     let emailValue = emailErrorLocation.previousElementSibling.value;
+
+    let products = createFinalArrayProduct();
+
+    if ((products.length === 0))
+    {
+        alert("Votre panier est vide. Impossible de passer commande"); 
+    }
     
-    if
+    else if
     (
         isThisAValidFirstName(firstNamValue) && 
         isThisAValidLastName(lastNameValue) &&
@@ -344,12 +324,11 @@ orderButtonLocation.addEventListener("click", async function(event)
         isThisAValidEmail(emailValue)
     )
     {
-        let confirmOrder = confirm(`Souhaiter passer à la commande ?`)
+        let confirmOrder = confirm(`Souhaiter passer à la commande ?`);
+
         if (confirmOrder == true)
         {
             let contact = {firstName:`${firstNamValue}`, lastName:`${lastNameValue}`, address:`${adresseValue}`, city:`${cityValue}`, email:`${emailValue}`};
-            let products = createFinalArrayProduct();
-    
             let orderID = await sendDataToServer(contact, products);
 
             if ((orderID != false) && (orderID != ""))

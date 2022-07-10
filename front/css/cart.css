@@ -84,6 +84,9 @@ h2 {
 	text-align: end;
 	font-size: 22px;
 }
+.cart__price--empty p{
+	text-align: center;
+}
 
 /*******/
 /*Order*/

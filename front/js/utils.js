@@ -52,3 +52,36 @@ export function getProductDataFromAPI(ProductID)
             console.log(`An error occured in getProductDataFromAPI ${ProductID}`);
         });
 }
+
+//Fonction spéciale pour vérifier si une clé est bien un produit du panier
+const apiData = await getDataFromAPI();
+
+export function isThisLocalStorageKeyAProduct(keyInString)
+{
+    let result = false;
+    for (let i = 0; i < apiData.length; i++)
+    {
+        for (let j = 0; j < apiData[i].colors.length; j++)
+        {
+            if(keyInString == `${apiData[i]._id},${apiData[i].colors[j]}`)
+            {
+                result = true;
+            }
+        }
+    }
+    return result;
+}
+
+export function isBasketEmpty()
+{
+    let result = true;
+    for (let i = 0; i < localStorage.length; i++)
+    {
+        if(isThisLocalStorageKeyAProduct(localStorage.key(i)) === true)
+        {
+            result = false;
+            break;
+        }
+    } 
+    return result;
+}
