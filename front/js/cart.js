@@ -55,6 +55,26 @@ async function getTotals()
 }
 
 /********************* 2- Tableau récapitulatif des achats *********************/
+let isBasketEmpty = true;
+
+for (let i = 0; i < localStorage.length; i++)
+{
+    if(isThisLocalStorageKeyAProduct(localStorage.key(i)) === true)
+    {
+        isBasketEmpty = false;
+        break;
+    }
+} 
+
+if(isBasketEmpty === true)
+{
+    let sectionToRemove = document.querySelector("#cartAndFormContainer section");
+    console.log(sectionToRemove);
+    sectionToRemove.remove();
+    let messageParagraphe = `Votre panier est vide. Vous pouvez parcourir notre catalogue pour faire votre choix!`;
+    addElementInsideParent(messageParagraphe,document.getElementById("cartAndFormContainer"));
+}
+
 
 //Recuperation et Insertion du Panier dans le DOM
 for (let i = 0; i < localStorage.length; i++) 
@@ -286,7 +306,15 @@ function sendDataToServer(contact, products)
         })
         .then((response) =>
         {
-            return response.json();
+            if (response.ok)
+            {
+                return response.json();
+            }
+
+            else
+            {
+                return false;
+            }
         })
         .then((data) =>
         {
@@ -322,8 +350,13 @@ orderButtonLocation.addEventListener("click", async function(event)
             let contact = {firstName:`${firstNamValue}`, lastName:`${lastNameValue}`, address:`${adresseValue}`, city:`${cityValue}`, email:`${emailValue}`};
             let products = createFinalArrayProduct();
     
-            let response = await sendDataToServer(contact, products);
-            console.log(response);
+            let orderID = await sendDataToServer(contact, products);
+
+            if ((orderID != false) && (orderID != ""))
+            {
+                localStorage.clear();
+                location.href = "confirmation.html?id=" + orderID;
+            }
         }
 
         else
