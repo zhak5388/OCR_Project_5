@@ -1,4 +1,4 @@
-import {addElementInsideParent, convertArrayString, getDataFromAPI, getProductDataFromAPI, maximumQuantityPerProductOnBasket} from "./utils.js";
+import {addElementInsideParent, convertArrayString, getDataFromAPI, getProductDataFromAPI, KanapApiUrl, maximumQuantityPerProductOnBasket} from "./utils.js";
 
 /********************* 1- Définition Fonctions et Variables générales *********************/
 
@@ -255,3 +255,85 @@ emailErrorLocation.previousElementSibling.addEventListener("blur", ()=>
     invalidInputFormBehaviour(emailErrorLocation, "l'email renseigné", isThisAValidEmail);
 });
 
+/********************* 5 - Envoi des Données vers le serveur *********************/
+let orderButtonLocation = document.getElementById("order");
+
+function createFinalArrayProduct()
+{
+    let finalArray = [];
+    let productsForAPI = [];
+    for(let i = 0; i < localStorage.length; i++)
+    {
+        if(isThisLocalStorageKeyAProduct(localStorage.key(i)))
+        {
+            let productObject = {id:`${convertArrayString(localStorage.key(i))[0]}`,color:`${convertArrayString(localStorage.key(i))[1]}`,quantity:`${localStorage.getItem(localStorage.key(i))}`};
+            let product = `${convertArrayString(localStorage.key(i))[0]}`;
+            finalArray.push(productObject);
+            productsForAPI.push(product);
+        }
+    }
+    localStorage.setItem("finalProductsOnBasket",JSON.stringify(finalArray));
+    return productsForAPI;
+}
+
+function sendDataToServer(contact, products)
+{
+    return fetch(`${KanapApiUrl}order`,
+        {
+           method: "POST",
+           headers:{'Content-Type': 'application/json'},
+           body: JSON.stringify({ contact, products })
+        })
+        .then((response) =>
+        {
+            return response.json();
+        })
+        .then((data) =>
+        {
+            return data.orderId;
+        })
+        .catch( () =>
+        {
+            console.log("An error occured when sending data");
+        });
+}
+
+orderButtonLocation.addEventListener("click", async function(event)
+{
+    event.preventDefault();
+    let firstNamValue = firstNameErrorLocation.previousElementSibling.value;
+    let lastNameValue = lastNameErrorLocation.previousElementSibling.value;
+    let adresseValue = adressErrorLocation.previousElementSibling.value;
+    let cityValue = cityErrorLocation.previousElementSibling.value;
+    let emailValue = emailErrorLocation.previousElementSibling.value;
+    
+    if
+    (
+        isThisAValidFirstName(firstNamValue) && 
+        isThisAValidLastName(lastNameValue) &&
+        isThisAValidAdress(adresseValue) &&
+        isThisAValidCity(cityValue) && 
+        isThisAValidEmail(emailValue)
+    )
+    {
+        let confirmOrder = confirm(`Souhaiter passer à la commande ?`)
+        if (confirmOrder == true)
+        {
+            let contact = {firstName:`${firstNamValue}`, lastName:`${lastNameValue}`, address:`${adresseValue}`, city:`${cityValue}`, email:`${emailValue}`};
+            let products = createFinalArrayProduct();
+    
+            let response = await sendDataToServer(contact, products);
+            console.log(response);
+        }
+
+        else
+        {
+            return 0;
+        }
+    }
+
+    else
+    {
+        alert("Veuillez vérifier que le formulaire est correctement rempli");
+    }
+});
