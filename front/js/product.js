@@ -76,21 +76,35 @@ addToCartButtonLocation.addEventListener("click", () =>
     if (confirmAddition == true)
     {
         let key  = convertArrayString([urlID , colorValue]);
+        let newQuantityValue;
 
         //Si le produit est présent dans le panier, on incrémente la quantité, sinon on l'ajoute
         if(isItOnBasket(key))
         {
-            localStorage[key] = parseInt(localStorage[key]) + parseInt(quantityValue); //localStorage is always a string
+            newQuantityValue = parseInt(localStorage[key]) + parseInt(quantityValue); //localStorage is always a string
+            if (newQuantityValue > maximumQuantityPerProductOnBasket)
+            {
+                alert(`Le panier contient ${parseInt(localStorage[key])} articles de ce produit. La limite est de 100`);
+            }
+            else
+            {
+                localStorage[key] = newQuantityValue;
+            }
         }
 
         else
         {
+            newQuantityValue = parseInt(quantityValue);
             localStorage.setItem(key, quantityValue);
         }
         
         document.getElementById("quantity").value = 0;
         document.getElementById("colors").value = "";
-        alert(confirmationSentence);
+
+        if(newQuantityValue <= maximumQuantityPerProductOnBasket)
+        {
+            alert(confirmationSentence);
+        }
     }
 
    }

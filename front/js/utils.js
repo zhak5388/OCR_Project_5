@@ -21,6 +21,7 @@ export function convertArrayString(key)
     }
 }
 
+//Fonctions pour obtenir les donnees de l'API sous forme d'objet
 export function getDataFromAPI()
 {
     return fetch(KanapApiUrl)

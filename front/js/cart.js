@@ -253,19 +253,16 @@ let orderButtonLocation = document.getElementById("order");
 
 function createFinalArrayProduct()
 {
-    let finalArray = [];
     let productsForAPI = [];
     for(let i = 0; i < localStorage.length; i++)
     {
         if(isThisLocalStorageKeyAProduct(localStorage.key(i)))
         {
-            let productObject = {id:`${convertArrayString(localStorage.key(i))[0]}`,color:`${convertArrayString(localStorage.key(i))[1]}`,quantity:`${localStorage.getItem(localStorage.key(i))}`};
+            //let productObject = {id:`${convertArrayString(localStorage.key(i))[0]}`,color:`${convertArrayString(localStorage.key(i))[1]}`,quantity:`${localStorage.getItem(localStorage.key(i))}`};
             let product = `${convertArrayString(localStorage.key(i))[0]}`;
-            finalArray.push(productObject);
             productsForAPI.push(product);
         }
     }
-    localStorage.setItem("finalProductsOnBasket",JSON.stringify(finalArray));
     return productsForAPI;
 }
 
