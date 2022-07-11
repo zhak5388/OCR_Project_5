@@ -40,13 +40,7 @@ function changeAppearanceIfEmptyBasket()
     let isBasketEmptyValue = isBasketEmpty();
     if(isBasketEmptyValue)
     {
-        //Old
-        //totalPriceLocation.closest("div").classList.add("cart__price--empty");
-        //totalPriceLocation.closest("p").innerHTML = `Votre panier est vide. Vous pouvez parcourir notre catalogue pour faire votre choix !`;
-
-        //New
         totalPriceLocation.closest("div").classList.add("cart__price--empty");
-        //totalPriceLocation.closest("p").outerHTML = `<p>Votre panier est vide. Vous pouvez parcourir notre catalogue pour faire votre choix !</p>`;
         totalPriceLocation.closest("p").textContent = `Votre panier est vide. Vous pouvez parcourir notre catalogue pour faire votre choix !`;
     }
 }
@@ -101,10 +95,6 @@ deleteArticleButtonLocation.forEach( (buttonElement) =>
             
             //Changement du prix et quantité
             let newTotals = await getTotals();
-            //Old
-            //totalQuantityLocation.innerHTML = newTotals[0];
-            //totalPriceLocation.innerHTML = newTotals[1];
-            //New
             totalQuantityLocation.textContent = newTotals[0];
             totalPriceLocation.textContent = newTotals[1];
 
@@ -135,9 +125,6 @@ itemQuantityLocation.forEach( (buttonElement) =>
         }
 
         //Changement dans le DOM
-        //Old
-        //quantityText.innerHTML = `Qté : ${currentQuantity}`;
-        //New
         quantityText.textContent = `Qté : ${currentQuantity}`;
 
         //Changement dans le localStorage
@@ -145,10 +132,6 @@ itemQuantityLocation.forEach( (buttonElement) =>
 
         //Changement du prix et quantité
         let newTotals = await getTotals();
-        //Old
-        //totalQuantityLocation.innerHTML = newTotals[0];
-       //totalPriceLocation.innerHTML = newTotals[1];
-        //New
         totalQuantityLocation.textContent = newTotals[0];
         totalPriceLocation.textContent = newTotals[1];
     });
@@ -228,18 +211,12 @@ function invalidInputFormBehaviour(errorLocation, messageType, controlFunction)
 
     if(controlFunction(currentValue) === false)
     {
-        //Old
-        //errorLocation.innerHTML = `Veuillez vérifier ${messageType}`;
-        //New
         errorLocation.textContent = `Veuillez vérifier ${messageType}`;
         errorLocation.previousElementSibling.style.border = "solid 2px red";
     }
 
     if((controlFunction(currentValue) === true) || (currentValue == ""))
     {
-        //Old
-        //errorLocation.innerHTML = "";
-        //New
         errorLocation.textContent = "";
         errorLocation.previousElementSibling.style.border = "0";
     }
